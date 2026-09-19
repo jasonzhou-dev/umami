@@ -64,7 +64,13 @@ export type TrackedProperties = {
 
 export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
-export type EventDataValue = boolean | number | string | null | EventData | EventDataValue[];
+export type EventDataValue =
+  | boolean
+  | number
+  | string
+  | null
+  | EventData
+  | EventDataValue[];
 
 /**
  *
@@ -84,8 +90,8 @@ export type EventProperties = {
    */
   name: string;
   data?: EventData;
-} & WithRequired<TrackedProperties, 'website'>;
-export type PageViewProperties = WithRequired<TrackedProperties, 'website'>;
+} & WithRequired<TrackedProperties, "website">;
+export type PageViewProperties = WithRequired<TrackedProperties, "website">;
 export type CustomEventFunction = (
   props: PageViewProperties,
 ) => EventProperties | PageViewProperties;
@@ -210,7 +216,7 @@ type MetricEntry = PerformanceEntry & {
   startTime: number;
   value: number;
 };
-(window => {
+((window) => {
   const {
     screen: { width, height },
     navigator: { language, doNotTrack: ndnt, msDoNotTrack: msdnt },
@@ -227,34 +233,37 @@ type MetricEntry = PerformanceEntry & {
 
   let localStorage: Storage | undefined;
   try {
-    localStorage = href.startsWith('data:') ? undefined : window.localStorage;
+    localStorage = href.startsWith("data:") ? undefined : window.localStorage;
   } catch {
     /* (DOMException) SecurityError: Access is denied for this document. */
   }
 
-  const _data = 'data-';
-  const _false = 'false';
-  const _true = 'true';
+  const _data = "data-";
+  const _false = "false";
+  const _true = "true";
   const attr = currentScript.getAttribute.bind(currentScript);
   const config = (value: string) => attr(`${_data}${value}`);
 
-  const website = config('website-id');
-  const hostUrl = config('host-url');
-  const beforeSend = config('before-send');
-  const tag = config('tag') || undefined;
-  const autoTrack = config('auto-track') !== _false;
-  const dnt = config('do-not-track') === _true;
-  const excludeSearch = config('exclude-search') === _true;
-  const excludeHash = config('exclude-hash') === _true;
-  const domain = config('domains') || '';
-  const credentials = (config('fetch-credentials') || 'omit') as RequestCredentials;
-  const perf = config('performance') === _true;
-  const autoPageview = config('auto-pageview') !== _false;
+  const website = config("website-id");
+  const hostUrl = config("host-url");
+  const beforeSend = config("before-send");
+  const tag = config("tag") || undefined;
+  const autoTrack = config("auto-track") !== _false;
+  const dnt = config("do-not-track") === _true;
+  const excludeSearch = config("exclude-search") === _true;
+  const excludeHash = config("exclude-hash") === _true;
+  const domain = config("domains") || "";
+  const credentials = (config("fetch-credentials") ||
+    "omit") as RequestCredentials;
+  const perf = config("performance") === _true;
+  const autoPageview = config("auto-pageview") !== _false;
 
-  const domains = domain.split(',').map(n => n.trim());
+  const domains = domain.split(",").map((n) => n.trim());
   const host =
-    hostUrl || '__COLLECT_API_HOST__' || currentScript.src.split('/').slice(0, -1).join('/');
-  const endpoint = `${host.replace(/\/$/, '')}__COLLECT_API_ENDPOINT__`;
+    hostUrl ||
+    "__COLLECT_API_HOST__" ||
+    currentScript.src.split("/").slice(0, -1).join("/");
+  const endpoint = `${host.replace(/\/$/, "")}__COLLECT_API_ENDPOINT__`;
   const screen = `${width}x${height}`;
   const eventRegex = /data-umami-event-([\w-_]+)/;
   const eventNameAttribute = `${_data}umami-event`;
@@ -266,8 +275,8 @@ type MetricEntry = PerformanceEntry & {
     if (!raw) return raw as string;
     try {
       const u = new URL(raw, location.href);
-      if (excludeSearch) u.search = '';
-      if (excludeHash) u.hash = '';
+      if (excludeSearch) u.search = "";
+      if (excludeHash) u.hash = "";
       return u.toString();
     } catch {
       return raw as string;
@@ -277,10 +286,13 @@ type MetricEntry = PerformanceEntry & {
   // Strip the origin from same-origin referrers so the referrer domain
   // is never saved when it matches the current hostname
   const stripOrigin = (url: string): string =>
-    url === origin || url?.startsWith(origin + '/') ? url.slice(origin.length) : url;
+    url === origin || url?.startsWith(origin + "/")
+      ? url.slice(origin.length)
+      : url;
 
   const getPayload = () => ({
     website,
+    timestamp: Math.floor(Date.now() / 1000),
     screen,
     language,
     title: document.title,
@@ -293,15 +305,19 @@ type MetricEntry = PerformanceEntry & {
 
   const hasDoNotTrack = () => {
     const dnt = doNotTrack || ndnt || msdnt;
-    return dnt === 1 || dnt === '1' || dnt === 'yes';
+    return dnt === 1 || dnt === "1" || dnt === "yes";
   };
 
   /* Event handlers */
 
-  const handlePush = (_state: unknown, _title: string, url?: string | URL | null) => {
+  const handlePush = (
+    _state: unknown,
+    _title: string,
+    url?: string | URL | null,
+  ) => {
     if (!url) return;
 
-    if (typeof flushPerformance === 'function') {
+    if (typeof flushPerformance === "function") {
       flushPerformance();
     }
 
@@ -316,19 +332,19 @@ type MetricEntry = PerformanceEntry & {
   const handlePathChanges = () => {
     const hook = (
       _this: History,
-      method: 'pushState' | 'replaceState',
+      method: "pushState" | "replaceState",
       callback: typeof handlePush,
     ) => {
       const orig = _this[method];
-      return (...args: Parameters<History['pushState']>) => {
+      return (...args: Parameters<History["pushState"]>) => {
         const result = orig.apply(_this, args);
         callback.apply(null, args);
         return result;
       };
     };
 
-    history.pushState = hook(history, 'pushState', handlePush);
-    history.replaceState = hook(history, 'replaceState', handlePush);
+    history.pushState = hook(history, "pushState", handlePush);
+    history.replaceState = hook(history, "replaceState", handlePush);
   };
 
   const handleClicks = () => {
@@ -337,7 +353,7 @@ type MetricEntry = PerformanceEntry & {
       if (eventName) {
         const eventData: EventData = {};
 
-        el.getAttributeNames().forEach(name => {
+        el.getAttributeNames().forEach((name) => {
           const match = name.match(eventRegex);
           if (match) eventData[match[1]] = el.getAttribute(name) as string;
         });
@@ -350,10 +366,10 @@ type MetricEntry = PerformanceEntry & {
       const eventEl = el.closest(`[${eventNameAttribute}]`);
       if (!eventEl) return;
 
-      if (eventEl.tagName === 'A' && (eventEl as HTMLAnchorElement).href) {
+      if (eventEl.tagName === "A" && (eventEl as HTMLAnchorElement).href) {
         const { href, target } = eventEl as HTMLAnchorElement;
         const external =
-          target === '_blank' ||
+          target === "_blank" ||
           e.ctrlKey ||
           e.shiftKey ||
           e.metaKey ||
@@ -361,14 +377,17 @@ type MetricEntry = PerformanceEntry & {
         if (!external) e.preventDefault();
         return trackElement(eventEl).finally(() => {
           if (!external) {
-            (target === '_top' ? (top as WindowProxy).location : location).href = href;
+            (target === "_top"
+              ? (top as WindowProxy).location
+              : location
+            ).href = href;
           }
         });
       }
 
       return trackElement(eventEl);
     };
-    document.addEventListener('click', onClick, true);
+    document.addEventListener("click", onClick, true);
   };
 
   /* Tracking functions */
@@ -376,18 +395,21 @@ type MetricEntry = PerformanceEntry & {
   const trackingDisabled = () =>
     disabled ||
     !website ||
-    localStorage?.getItem('umami.disabled') ||
+    localStorage?.getItem("umami.disabled") ||
     (domain && !domains.includes(hostname)) ||
     (dnt && hasDoNotTrack());
 
-  const send = async (payload: Payload | null | undefined, type = 'event'): Promise<void> => {
+  const send = async (
+    payload: Payload | null | undefined,
+    type = "event",
+  ): Promise<void> => {
     if (trackingDisabled()) return;
 
-    const callback = (window as unknown as Record<string, unknown>)[beforeSend as string] as
-      | BeforeSend
-      | undefined;
+    const callback = (window as unknown as Record<string, unknown>)[
+      beforeSend as string
+    ] as BeforeSend | undefined;
 
-    if (typeof callback === 'function') {
+    if (typeof callback === "function") {
       payload = await Promise.resolve(callback(type, payload as Payload));
     }
 
@@ -396,18 +418,21 @@ type MetricEntry = PerformanceEntry & {
     try {
       const res = await fetch(endpoint, {
         keepalive: true,
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({ type, payload }),
         headers: {
-          'Content-Type': 'application/json',
-          'x-umami-website-id': website as string,
-          'x-umami-hostname': hostname,
-          ...(typeof cache !== 'undefined' && { 'x-umami-cache': cache }),
+          "Content-Type": "application/json",
+          "x-umami-website-id": website as string,
+          "x-umami-hostname": hostname,
+          ...(typeof cache !== "undefined" && { "x-umami-cache": cache }),
         },
         credentials,
       });
 
-      const data = (await res.json()) as { cache?: string; disabled?: boolean } | null;
+      const data = (await res.json()) as {
+        cache?: string;
+        disabled?: boolean;
+      } | null;
       if (data) {
         disabled = !!data.disabled;
         cache = data.cache;
@@ -432,9 +457,9 @@ type MetricEntry = PerformanceEntry & {
     name?: string | Payload | ((payload: Payload) => Payload),
     data?: EventData,
   ): Promise<void> => {
-    if (typeof name === 'string') return send({ ...getPayload(), name, data });
-    if (typeof name === 'object') return send({ ...name });
-    if (typeof name === 'function') return send(name(getPayload()));
+    if (typeof name === "string") return send({ ...getPayload(), name, data });
+    if (typeof name === "object") return send({ ...name });
+    if (typeof name === "function") return send(name(getPayload()));
     return send(getPayload());
   };
 
@@ -442,19 +467,19 @@ type MetricEntry = PerformanceEntry & {
     id: string | (EventData & { id?: string }),
     data?: EventData,
   ): Promise<void> => {
-    const nextIdentity = typeof id === 'string' ? id : id.id;
+    const nextIdentity = typeof id === "string" ? id : id.id;
 
     if (nextIdentity !== undefined) {
       identity = nextIdentity;
     }
 
-    cache = '';
+    cache = "";
     return send(
       {
         ...getPayload(),
-        data: typeof id === 'object' ? id : data,
+        data: typeof id === "object" ? id : data,
       },
-      'identify',
+      "identify",
     );
   };
 
@@ -470,7 +495,7 @@ type MetricEntry = PerformanceEntry & {
 
     const observe = (type: string, callback: (entry: MetricEntry) => void) => {
       try {
-        const observer = new PerformanceObserver(list => {
+        const observer = new PerformanceObserver((list) => {
           (list.getEntries() as MetricEntry[]).forEach(callback);
         });
         observer.observe({ type, buffered: true });
@@ -480,27 +505,27 @@ type MetricEntry = PerformanceEntry & {
     };
 
     // TTFB
-    observe('navigation', entry => {
+    observe("navigation", (entry) => {
       activationStart = entry.activationStart || 0;
       metrics.ttfb = Math.max(entry.responseStart - activationStart, 0);
     });
 
     // FCP
-    observe('paint', entry => {
-      if (entry.name === 'first-contentful-paint') {
+    observe("paint", (entry) => {
+      if (entry.name === "first-contentful-paint") {
         metrics.fcp = Math.max(entry.startTime - activationStart, 0);
       }
     });
 
     // LCP
-    observe('largest-contentful-paint', entry => {
+    observe("largest-contentful-paint", (entry) => {
       metrics.lcp = Math.max(entry.startTime - activationStart, 0);
     });
 
     // CLS - session windows algorithm (gap < 1s, max 5s duration; report worst window)
     let clsSessionValue = 0;
     let clsSessionEntries: MetricEntry[] = [];
-    observe('layout-shift', entry => {
+    observe("layout-shift", (entry) => {
       if (!entry.hadRecentInput) {
         const lastEntry = clsSessionEntries[clsSessionEntries.length - 1];
         const firstEntry = clsSessionEntries[0];
@@ -525,7 +550,7 @@ type MetricEntry = PerformanceEntry & {
     let interactions: Record<number, number> = {};
     let inpObserver: PerformanceObserver | undefined;
     const recordInteractions = (entries: PerformanceEntryList) => {
-      (entries as MetricEntry[]).forEach(entry => {
+      (entries as MetricEntry[]).forEach((entry) => {
         if (entry.interactionId) {
           const existing = interactions[entry.interactionId];
           if (!existing || entry.duration > existing) {
@@ -535,9 +560,11 @@ type MetricEntry = PerformanceEntry & {
       });
     };
     try {
-      inpObserver = new PerformanceObserver(list => recordInteractions(list.getEntries()));
+      inpObserver = new PerformanceObserver((list) =>
+        recordInteractions(list.getEntries()),
+      );
       inpObserver.observe({
-        type: 'event',
+        type: "event",
         buffered: true,
         durationThreshold: 40,
       } as PerformanceObserverInit);
@@ -556,7 +583,9 @@ type MetricEntry = PerformanceEntry & {
 
     const getEntriesByType = (type: string): MetricEntry[] => {
       try {
-        return (window.performance?.getEntriesByType?.(type) as MetricEntry[]) || [];
+        return (
+          (window.performance?.getEntriesByType?.(type) as MetricEntry[]) || []
+        );
       } catch {
         return [];
       }
@@ -566,15 +595,18 @@ type MetricEntry = PerformanceEntry & {
       if (!isInitialLoad) return;
 
       if (metrics.ttfb === undefined) {
-        const navigation = getEntriesByType('navigation')?.[0];
+        const navigation = getEntriesByType("navigation")?.[0];
         if (navigation) {
-          metrics.ttfb = Math.max(navigation.responseStart - (navigation.activationStart || 0), 0);
+          metrics.ttfb = Math.max(
+            navigation.responseStart - (navigation.activationStart || 0),
+            0,
+          );
         }
       }
 
       if (metrics.fcp === undefined) {
-        const fcpEntry = getEntriesByType('paint')?.find(
-          entry => entry.name === 'first-contentful-paint',
+        const fcpEntry = getEntriesByType("paint")?.find(
+          (entry) => entry.name === "first-contentful-paint",
         );
         if (fcpEntry) {
           metrics.fcp = Math.max(fcpEntry.startTime - activationStart, 0);
@@ -582,7 +614,7 @@ type MetricEntry = PerformanceEntry & {
       }
 
       if (metrics.lcp === undefined) {
-        const lcpEntries = getEntriesByType('largest-contentful-paint');
+        const lcpEntries = getEntriesByType("largest-contentful-paint");
         const lcpEntry = lcpEntries?.[lcpEntries.length - 1];
         if (lcpEntry) {
           metrics.lcp = Math.max(lcpEntry.startTime - activationStart, 0);
@@ -599,13 +631,13 @@ type MetricEntry = PerformanceEntry & {
 
       sent = true;
       if (timeoutId) clearTimeout(timeoutId);
-      send({ ...getPayload(), ...metrics }, 'performance');
+      send({ ...getPayload(), ...metrics }, "performance");
     };
 
     flushPerformance = () => {
       sendPerformance();
       isInitialLoad = false;
-      Object.keys(metrics).forEach(k => {
+      Object.keys(metrics).forEach((k) => {
         delete metrics[k];
       });
       activationStart = 0;
@@ -619,10 +651,10 @@ type MetricEntry = PerformanceEntry & {
     };
     timeoutId = setTimeout(sendPerformance, 10000);
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') sendPerformance();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") sendPerformance();
     });
-    window.addEventListener('pagehide', sendPerformance);
+    window.addEventListener("pagehide", sendPerformance);
   };
 
   /* Start */
@@ -645,10 +677,10 @@ type MetricEntry = PerformanceEntry & {
   let flushPerformance: (() => void) | undefined;
 
   if (autoTrack && !trackingDisabled()) {
-    if (document.readyState === 'complete') {
+    if (document.readyState === "complete") {
       init();
     } else {
-      document.addEventListener('readystatechange', init, true);
+      document.addEventListener("readystatechange", init, true);
     }
   }
 })(window as TrackerWindow);

@@ -47,6 +47,8 @@ model Session {
   country    String?   @db.Char(2)
   region     String?   @db.VarChar(20)
   city       String?   @db.VarChar(50)
+  province   String?   @db.VarChar(20)
+  isp        String?   @db.VarChar(50)
   distinctId String?   @map("distinct_id") @db.VarChar(50)
   createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -65,6 +67,8 @@ model Session {
   @@index([websiteId, createdAt, country])
   @@index([websiteId, createdAt, region])
   @@index([websiteId, createdAt, city])
+  @@index([websiteId, createdAt, province])
+  @@index([websiteId, createdAt, isp])
   @@map("session")
 }
 

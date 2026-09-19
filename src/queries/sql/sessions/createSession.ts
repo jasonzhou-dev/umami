@@ -1,9 +1,9 @@
-import type { Prisma } from '@/generated/prisma/client';
-import { FIELD_LENGTH } from '@/lib/constants';
-import { truncateString } from '@/lib/format';
-import prisma from '@/lib/prisma';
+import type { Prisma } from "@/generated/prisma/client";
+import { FIELD_LENGTH } from "@/lib/constants";
+import { truncateString } from "@/lib/format";
+import prisma from "@/lib/prisma";
 
-const FUNCTION_NAME = 'createSession';
+const FUNCTION_NAME = "createSession";
 
 export async function createSession(data: Prisma.SessionCreateInput) {
   const { writeRawQuery } = prisma;
@@ -17,6 +17,8 @@ export async function createSession(data: Prisma.SessionCreateInput) {
     country: truncateString(data.country, FIELD_LENGTH.country),
     region: truncateString(data.region, FIELD_LENGTH.region),
     city: truncateString(data.city, FIELD_LENGTH.city),
+    province: truncateString(data.province, FIELD_LENGTH.province),
+    isp: truncateString(data.isp, FIELD_LENGTH.isp),
     distinctId: truncateString(data.distinctId, FIELD_LENGTH.distinctId),
   };
 
@@ -33,6 +35,8 @@ export async function createSession(data: Prisma.SessionCreateInput) {
       country,
       region,
       city,
+      province,
+      isp,
       distinct_id,
       created_at
     )
@@ -47,6 +51,8 @@ export async function createSession(data: Prisma.SessionCreateInput) {
       {{country}},
       {{region}},
       {{city}},
+      {{province}},
+      {{isp}},
       {{distinctId}},
       {{createdAt}}
     )

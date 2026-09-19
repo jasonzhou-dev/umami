@@ -1,9 +1,16 @@
-import { Button, Icon } from '@umami/react-zen';
-import { useEffect, useRef, useState } from 'react';
-import { Check, Copy } from '@/components/icons';
+import { Button, Icon } from "@umami/react-zen";
+import { useEffect, useRef, useState } from "react";
+import { Check, Copy } from "@/components/icons";
 
-export function CopyButton({ value, label = 'Copy' }: { value: string; label?: string }) {
+export function CopyButton({
+  value,
+  label = "Copy",
+}: {
+  value: string;
+  label?: string;
+}) {
   const [copied, setCopied] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -15,11 +22,21 @@ export function CopyButton({ value, label = 'Copy' }: { value: string; label?: s
   }, []);
 
   const handleCopy = async () => {
-    if (!navigator?.clipboard) {
-      return;
+    if (navigator?.clipboard) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      // Fallback for HTTP (non-secure context)
+      if (!textareaRef.current) {
+        textareaRef.current = document.createElement("textarea");
+        textareaRef.current.style.position = "fixed";
+        textareaRef.current.style.opacity = "0";
+        document.body.appendChild(textareaRef.current);
+      }
+      textareaRef.current.value = value;
+      textareaRef.current.select();
+      document.execCommand("copy");
     }
 
-    await navigator.clipboard.writeText(value);
     setCopied(true);
 
     if (timeoutRef.current) {

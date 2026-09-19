@@ -1,16 +1,16 @@
-import { Row } from '@umami/react-zen';
-import { Favicon } from '@/components/common/Favicon';
-import { FilterLink } from '@/components/common/FilterLink';
-import { TypeIcon } from '@/components/common/TypeIcon';
+import { Row } from "@umami/react-zen";
+import { Favicon } from "@/components/common/Favicon";
+import { FilterLink } from "@/components/common/FilterLink";
+import { TypeIcon } from "@/components/common/TypeIcon";
 import {
   useCountryNames,
   useFormat,
   useLocale,
   useMessages,
   useRegionNames,
-} from '@/components/hooks';
-import { GROUPED_DOMAINS } from '@/lib/constants';
-import { decodePunycodeDomain } from '@/lib/format';
+} from "@/components/hooks";
+import { GROUPED_DOMAINS } from "@/lib/constants";
+import { decodePunycodeDomain } from "@/lib/format";
 
 export interface MetricLabelProps {
   type: string;
@@ -20,40 +20,46 @@ export interface MetricLabelProps {
 
 export function MetricLabel({ type, data }: MetricLabelProps) {
   switch (type) {
-    case 'browser':
-    case 'os':
+    case "browser":
+    case "os":
       return <BrowserOsMetricLabel type={type} data={data} />;
 
-    case 'channel':
+    case "channel":
       return <ChannelMetricLabel data={data} />;
 
-    case 'city':
+    case "city":
       return <CityMetricLabel data={data} />;
 
-    case 'region':
+    case "region":
       return <RegionMetricLabel data={data} />;
 
-    case 'country':
+    case "country":
       return <CountryMetricLabel data={data} />;
 
-    case 'path':
-    case 'entry':
-    case 'exit':
+    case "province":
+      return <ProvinceMetricLabel data={data} />;
+
+    case "isp":
+      return <IspMetricLabel data={data} />;
+
+    case "path":
+    case "entry":
+    case "exit":
       return <PathMetricLabel type={type} data={data} />;
 
-    case 'fullPath':
+    case "fullPath":
       return <FullPathMetricLabel data={data} />;
 
-    case 'device':
+    case "device":
       return <DeviceMetricLabel data={data} />;
 
-    case 'referrer':
+    case "referrer":
       return <ReferrerMetricLabel data={data} />;
 
-    case 'domain':
+    case "domain":
       return <DomainMetricLabel data={data} />;
 
-    case 'language':
+    case "language":
       return <LanguageMetricLabel data={data} />;
 
     default:
@@ -65,8 +71,8 @@ function BrowserOsMetricLabel({
   type,
   data,
 }: {
-  type: 'browser' | 'os';
-  data: MetricLabelProps['data'];
+  type: "browser" | "os";
+  data: MetricLabelProps["data"];
 }) {
   const { formatValue } = useFormat();
   const { label } = data;
@@ -81,14 +87,14 @@ function BrowserOsMetricLabel({
   );
 }
 
-function ChannelMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function ChannelMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { t, labels } = useMessages();
   const { label } = data;
 
   return t(labels[label]);
 }
 
-function CityMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function CityMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { formatCity } = useFormat();
   const { label, country } = data;
 
@@ -100,7 +106,7 @@ function CityMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
       icon={
         country && (
           <img
-            src={`${process.env.basePath || ''}/images/country/${country?.toLowerCase() || 'xx'}.png`}
+            src={`${process.env.basePath || ""}/images/country/${country?.toLowerCase() || "xx"}.png`}
             alt={country}
           />
         )
@@ -109,7 +115,7 @@ function CityMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
   );
 }
 
-function RegionMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function RegionMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { locale } = useLocale();
   const { getRegionName } = useRegionNames(locale);
   const { label, country } = data;
@@ -124,7 +130,19 @@ function RegionMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
   );
 }
 
-function CountryMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function ProvinceMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
+  const { label } = data;
+
+  return <FilterLink type="province" value={label} label={label} />;
+}
+
+function IspMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
+  const { label } = data;
+
+  return <FilterLink type="isp" value={label} label={label} />;
+}
+
+function CountryMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { formatValue } = useFormat();
   const { locale } = useLocale();
   const { countryNames } = useCountryNames(locale);
@@ -134,7 +152,7 @@ function CountryMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
     <FilterLink
       type="country"
       value={(countryNames[label] && label) || label}
-      label={formatValue(label, 'country')}
+      label={formatValue(label, "country")}
       icon={<TypeIcon type="country" value={label} />}
     />
   );
@@ -146,22 +164,26 @@ function PathMetricLabel({ type, data }: MetricLabelProps) {
 
   return (
     <FilterLink
-      type={type === 'entry' || type === 'exit' ? 'path' : type}
+      type={type === "entry" || type === "exit" ? "path" : type}
       value={label}
       label={!label && t(labels.none)}
-      externalUrl={domain ? `${domain?.startsWith('http') ? domain : `https://${domain}`}${label}` : null}
+      externalUrl={
+        domain
+          ? `${domain?.startsWith("http") ? domain : `https://${domain}`}${label}`
+          : null
+      }
     />
   );
 }
 
-function FullPathMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function FullPathMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { t, labels } = useMessages();
   const { label } = data;
 
   return label || `(${t(labels.none)})`;
 }
 
-function DeviceMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function DeviceMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { formatValue } = useFormat();
   const { labels } = useMessages();
   const { label } = data;
@@ -170,13 +192,13 @@ function DeviceMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
     <FilterLink
       type="device"
       value={labels[label] && label}
-      label={formatValue(label, 'device')}
+      label={formatValue(label, "device")}
       icon={<TypeIcon type="device" value={label} />}
     />
   );
 }
 
-function ReferrerMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function ReferrerMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { t, labels } = useMessages();
   const { label } = data;
 
@@ -191,11 +213,11 @@ function ReferrerMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
   );
 }
 
-function DomainMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function DomainMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { t, labels } = useMessages();
   const { label } = data;
 
-  if (label === 'Other') {
+  if (label === "Other") {
     return `(${t(labels.other)})`;
   }
 
@@ -213,11 +235,11 @@ function DomainMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
   );
 }
 
-function LanguageMetricLabel({ data }: Pick<MetricLabelProps, 'data'>) {
+function LanguageMetricLabel({ data }: Pick<MetricLabelProps, "data">) {
   const { formatValue } = useFormat();
   const { label } = data;
 
-  return formatValue(label, 'language');
+  return formatValue(label, "language");
 }
 
 function DefaultMetricLabel({ type, data }: MetricLabelProps) {

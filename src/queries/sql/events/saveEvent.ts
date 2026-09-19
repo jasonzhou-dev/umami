@@ -1,12 +1,12 @@
-import clickhouse from '@/lib/clickhouse';
-import { FIELD_LENGTH } from '@/lib/constants';
-import { uuid } from '@/lib/crypto';
-import { CLICKHOUSE, PRISMA, runQuery } from '@/lib/db';
-import { truncateString } from '@/lib/format';
-import kafka from '@/lib/kafka';
-import prisma from '@/lib/prisma';
-import { saveEventData } from './saveEventData';
-import { saveRevenue } from './saveRevenue';
+import clickhouse from "@/lib/clickhouse";
+import { FIELD_LENGTH } from "@/lib/constants";
+import { uuid } from "@/lib/crypto";
+import { CLICKHOUSE, PRISMA, runQuery } from "@/lib/db";
+import { truncateString } from "@/lib/format";
+import kafka from "@/lib/kafka";
+import prisma from "@/lib/prisma";
+import { saveEventData } from "./saveEventData";
+import { saveRevenue } from "./saveRevenue";
 
 export interface SaveEventArgs {
   websiteId: string;
@@ -34,6 +34,8 @@ export interface SaveEventArgs {
   country?: string;
   region?: string;
   city?: string;
+  province?: string;
+  isp?: string;
 
   // Events
   eventName?: string;
@@ -190,6 +192,8 @@ async function clickhouseQuery({
   country,
   region,
   city,
+  province,
+  isp,
   eventName,
   eventData,
   tag,
@@ -220,10 +224,16 @@ async function clickhouseQuery({
     visit_id: visitId,
     event_id: eventId,
     region: truncateString(
-      country && region ? (region.includes('-') ? region : `${country}-${region}`) : null,
+      country && region
+        ? region.includes("-")
+          ? region
+          : `${country}-${region}`
+        : null,
       FIELD_LENGTH.region,
     ),
     city: truncateString(city, FIELD_LENGTH.city),
+    province: truncateString(province, FIELD_LENGTH.province),
+    isp: truncateString(isp, FIELD_LENGTH.isp),
     url_path: truncateString(urlPath, FIELD_LENGTH.url),
     url_query: truncateString(urlQuery, FIELD_LENGTH.url),
     utm_source: truncateString(utmSource, FIELD_LENGTH.fieldValue),
@@ -261,9 +271,9 @@ async function clickhouseQuery({
   };
 
   if (kafka.enabled) {
-    await sendMessage('event', message);
+    await sendMessage("event", message);
   } else {
-    await insert('website_event', [message]);
+    await insert("website_event", [message]);
   }
 
   if (eventData) {

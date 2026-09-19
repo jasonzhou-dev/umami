@@ -1,6 +1,12 @@
-import { useMessages } from './useMessages';
+import { useMessages } from "./useMessages";
 
-export type FieldGroup = 'url' | 'sources' | 'location' | 'environment' | 'utm' | 'other';
+export type FieldGroup =
+  | "url"
+  | "sources"
+  | "location"
+  | "environment"
+  | "utm"
+  | "other";
 
 export interface Field {
   name: string;
@@ -14,128 +20,140 @@ export function useFields() {
 
   const fields: Field[] = [
     {
-      name: 'path',
+      name: "path",
       filterLabel: t(labels.path),
       label: t(labels.path),
-      group: 'url',
+      group: "url",
     },
     {
-      name: 'query',
+      name: "query",
       filterLabel: t(labels.query),
       label: t(labels.query),
-      group: 'url',
+      group: "url",
     },
     {
-      name: 'title',
+      name: "title",
       filterLabel: t(labels.pageTitle),
       label: t(labels.pageTitle),
-      group: 'url',
+      group: "url",
     },
     {
-      name: 'referrer',
+      name: "referrer",
       filterLabel: t(labels.referrer),
       label: t(labels.referrer),
-      group: 'sources',
+      group: "sources",
     },
     {
-      name: 'country',
+      name: "country",
       filterLabel: t(labels.country),
       label: t(labels.country),
-      group: 'location',
+      group: "location",
     },
     {
-      name: 'region',
+      name: "region",
       filterLabel: t(labels.region),
       label: t(labels.region),
-      group: 'location',
+      group: "location",
     },
     {
-      name: 'city',
+      name: "city",
       filterLabel: t(labels.city),
       label: t(labels.city),
-      group: 'location',
+      group: "location",
     },
     {
-      name: 'browser',
+      name: "province",
+      filterLabel: t(labels.province),
+      label: t(labels.province),
+      group: "location",
+    },
+    {
+      name: "isp",
+      filterLabel: t(labels.isp),
+      label: t(labels.isp),
+      group: "location",
+    },
+    {
+      name: "browser",
       filterLabel: t(labels.browser),
       label: t(labels.browser),
-      group: 'environment',
+      group: "environment",
     },
     {
-      name: 'os',
+      name: "os",
       filterLabel: t(labels.os),
       label: t(labels.os),
-      group: 'environment',
+      group: "environment",
     },
     {
-      name: 'device',
+      name: "device",
       filterLabel: t(labels.device),
       label: t(labels.device),
-      group: 'environment',
+      group: "environment",
     },
     {
-      name: 'utmSource',
+      name: "utmSource",
       filterLabel: t(labels.source),
       label: t(labels.utmSource),
-      group: 'utm',
+      group: "utm",
     },
     {
-      name: 'utmMedium',
+      name: "utmMedium",
       filterLabel: t(labels.medium),
       label: t(labels.utmMedium),
-      group: 'utm',
+      group: "utm",
     },
     {
-      name: 'utmCampaign',
+      name: "utmCampaign",
       filterLabel: t(labels.campaign),
       label: t(labels.utmCampaign),
-      group: 'utm',
+      group: "utm",
     },
     {
-      name: 'utmContent',
+      name: "utmContent",
       filterLabel: t(labels.content),
       label: t(labels.utmContent),
-      group: 'utm',
+      group: "utm",
     },
     {
-      name: 'utmTerm',
+      name: "utmTerm",
       filterLabel: t(labels.term),
       label: t(labels.utmTerm),
-      group: 'utm',
+      group: "utm",
     },
     {
-      name: 'hostname',
+      name: "hostname",
       filterLabel: t(labels.hostname),
       label: t(labels.hostname),
-      group: 'other',
+      group: "other",
     },
     {
-      name: 'distinctId',
+      name: "distinctId",
       filterLabel: t(labels.distinctId),
       label: t(labels.distinctId),
-      group: 'other',
+      group: "other",
     },
     {
-      name: 'tag',
+      name: "tag",
       filterLabel: t(labels.tag),
       label: t(labels.tag),
-      group: 'other',
+      group: "other",
     },
     {
-      name: 'event',
+      name: "event",
       filterLabel: t(labels.event),
       label: t(labels.event),
-      group: 'other',
+      group: "other",
     },
   ];
 
   const groupLabels: { key: FieldGroup; label: string }[] = [
-    { key: 'url', label: t(labels.url) },
-    { key: 'sources', label: t(labels.sources) },
-    { key: 'location', label: t(labels.location) },
-    { key: 'environment', label: t(labels.environment) },
-    { key: 'utm', label: t(labels.utm) },
-    { key: 'other', label: t(labels.other) },
+    { key: "url", label: t(labels.url) },
+    { key: "sources", label: t(labels.sources) },
+    { key: "location", label: t(labels.location) },
+    { key: "environment", label: t(labels.environment) },
+    { key: "utm", label: t(labels.utm) },
+    { key: "other", label: t(labels.other) },
   ];
 
   return { fields, groupLabels };

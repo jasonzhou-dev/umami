@@ -1,11 +1,13 @@
-import clickhouse from '@/lib/clickhouse';
-import { EVENT_TYPE } from '@/lib/constants';
-import { CLICKHOUSE, PRISMA, runQuery } from '@/lib/db';
-import prisma from '@/lib/prisma';
+import clickhouse from "@/lib/clickhouse";
+import { EVENT_TYPE } from "@/lib/constants";
+import { CLICKHOUSE, PRISMA, runQuery } from "@/lib/db";
+import prisma from "@/lib/prisma";
 
-const FUNCTION_NAME = 'getWebsiteSession';
+const FUNCTION_NAME = "getWebsiteSession";
 
-export async function getWebsiteSession(...args: [websiteId: string, sessionId: string]) {
+export async function getWebsiteSession(
+  ...args: [websiteId: string, sessionId: string]
+) {
   return runQuery({
     [PRISMA]: () => relationalQuery(...args),
     [CLICKHOUSE]: () => clickhouseQuery(...args),
@@ -28,12 +30,14 @@ async function relationalQuery(websiteId: string, sessionId: string) {
       country,
       region,
       city,
+      province,
+      isp,
       min(min_time) as "firstAt",
       max(max_time) as "lastAt",
       count(distinct visit_id) as visits,
       sum(views) as views,
       sum(events) as events,
-      sum(${getTimestampDiffSQL('min_time', 'max_time')}) as "totaltime" 
+      sum(${getTimestampDiffSQL("min_time", "max_time")}) as "totaltime"
     from (select
           session.session_id as id,
           session.distinct_id,
@@ -47,6 +51,8 @@ async function relationalQuery(websiteId: string, sessionId: string) {
           session.country,
           session.region,
           session.city,
+          session.province,
+          session.isp,
           min(website_event.created_at) as min_time,
           max(website_event.created_at) as max_time,
           sum(case when website_event.event_type = ${EVENT_TYPE.pageView} then 1 else 0 end) as views,
@@ -56,12 +62,12 @@ async function relationalQuery(websiteId: string, sessionId: string) {
     where session.website_id = {{websiteId::uuid}}
       and session.session_id = {{sessionId::uuid}}
       and website_event.event_type != ${EVENT_TYPE.performance}
-    group by session.session_id, session.distinct_id, visit_id, session.website_id, session.browser, session.os, session.device, session.screen, session.language, session.country, session.region, session.city) t
-    group by id, distinct_id, website_id, browser, os, device, screen, language, country, region, city;
+    group by session.session_id, session.distinct_id, visit_id, session.website_id, session.browser, session.os, session.device, session.screen, session.language, session.country, session.region, session.city, session.province, session.isp) t
+    group by id, distinct_id, website_id, browser, os, device, screen, language, country, region, city, province, isp;
     `,
     { websiteId, sessionId },
     FUNCTION_NAME,
-  ).then(result => result?.[0]);
+  ).then((result) => result?.[0]);
 }
 
 async function clickhouseQuery(websiteId: string, sessionId: string) {
@@ -80,8 +86,10 @@ async function clickhouseQuery(websiteId: string, sessionId: string) {
       argMax(country, max_time) as country,
       argMax(region, max_time) as region,
       argMax(city, max_time) as city,
-      ${getDateStringSQL('min(min_time)')} as firstAt,
-      ${getDateStringSQL('max(max_time)')} as lastAt,
+      argMax(province, max_time) as province,
+      argMax(isp, max_time) as isp,
+      ${getDateStringSQL("min(min_time)")} as firstAt,
+      ${getDateStringSQL("max(max_time)")} as lastAt,
       uniq(visit_id) visits,
       sum(views) as views,
       sum(events) as events,
@@ -99,6 +107,8 @@ async function clickhouseQuery(websiteId: string, sessionId: string) {
               country,
               region,
               city,
+              province,
+              isp,
               min(min_time) as min_time,
               max(max_time) as max_time,
               sum(views) as views,
@@ -107,10 +117,10 @@ async function clickhouseQuery(websiteId: string, sessionId: string) {
         where website_id = {websiteId:UUID}
           and session_id = {sessionId:UUID}
           and event_type != ${EVENT_TYPE.performance}
-        group by session_id, distinct_id, visit_id, website_id, browser, os, device, screen, language, country, region, city) t
+        group by session_id, distinct_id, visit_id, website_id, browser, os, device, screen, language, country, region, city, province, isp) t
     group by id;
     `,
     { websiteId, sessionId },
     FUNCTION_NAME,
-  ).then(result => result?.[0]);
+  ).then((result) => result?.[0]);
 }
