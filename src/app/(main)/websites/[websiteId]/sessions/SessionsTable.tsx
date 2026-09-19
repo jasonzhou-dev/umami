@@ -33,8 +33,9 @@ export function SessionsTable({
       <DataColumn id="location" label={t(labels.location)} width="200px">
         {(row: any) => (
           <TypeIcon type="country" value={row.country}>
-            {row.city ? `${row.city}, ` : ''}
-            {formatValue(row.country, 'country')}
+            {[formatValue(row.country, 'country'), row.province, row.city]
+              .filter(Boolean)
+              .join(' ')}
           </TypeIcon>
         )}
       </DataColumn>

@@ -37,10 +37,10 @@ export function LoginForm() {
 
   return (
     <Column justifyContent="center" alignItems="center" gap="6">
-      <Icon size="xl">
+      <Icon size="lg">
         <Logo />
       </Icon>
-      <Heading>目标遥测中心</Heading>
+      <Heading>Starry Insights</Heading>
       <Form onSubmit={handleSubmit} error={getErrorMessage(error)} style={{ minWidth: 300 }}>
         <FormField
           label={t(labels.username)}

@@ -57,7 +57,17 @@ export function getBrowser(ua: ReturnType<typeof UAParser>): string {
 }
 
 export function getOS(ua: ReturnType<typeof UAParser>): string {
-  return ua.os?.name || "";
+  const name = ua.os?.name || "";
+  const version = ua.os?.version;
+
+  if (!name) return "";
+
+  if (name === "Windows" && version) {
+    const majorVersion = version.split(".")[0];
+    return `Windows ${majorVersion}`;
+  }
+
+  return name;
 }
 
 function getRegionCode(country: string, region: string) {

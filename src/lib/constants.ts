@@ -17,7 +17,7 @@ export const DOCS_URL = "https://umami.is/docs";
 export const REPO_URL = "https://github.com/umami-software/umami";
 export const UPDATES_URL = "https://api.umami.is/v1/updates";
 export const TELEMETRY_PIXEL = "https://i.umami.is/a.png";
-export const FAVICON_URL = "https://{{domain}}/favicon.ico";
+export const FAVICON_URL="https://geticon.dev/?url={{domain}}";
 export const LINKS_URL = `${globalThis?.location?.origin}/q`;
 export const PIXELS_URL = `${globalThis?.location?.origin}/p`;
 

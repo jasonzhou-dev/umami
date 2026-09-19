@@ -47,6 +47,7 @@ async function relationalQuery(websiteId: string, filters: QueryFilters) {
       session.country,
       session.region,
       session.city,
+      session.province,
       min(website_event.created_at) as "firstAt",
       max(website_event.created_at) as "lastAt",
       count(distinct website_event.visit_id) as "visits",
@@ -72,7 +73,8 @@ async function relationalQuery(websiteId: string, filters: QueryFilters) {
       session.language, 
       session.country, 
       session.region, 
-      session.city
+      session.city,
+      session.province
     order by max(website_event.created_at) desc
     `,
     queryParams,
@@ -122,6 +124,7 @@ async function clickhouseQuery(websiteId: string, filters: QueryFilters) {
       argMax(country, created_at) as country,
       argMax(region, created_at) as region,
       argMax(city, created_at) as city,
+      argMax(province, created_at) as province,
       ${getDateStringSQL('min(created_at)')} as firstAt,
       ${getDateStringSQL('max(created_at)')} as lastAt,
       uniq(visit_id) as visits,
@@ -152,6 +155,7 @@ async function clickhouseQuery(websiteId: string, filters: QueryFilters) {
       argMax(country, max_time) as country,
       argMax(region, max_time) as region,
       argMax(city, max_time) as city,
+      argMax(province, max_time) as province,
       ${getDateStringSQL('min(min_time)')} as firstAt,
       ${getDateStringSQL('max(max_time)')} as lastAt,
       uniq(visit_id) as visits,
